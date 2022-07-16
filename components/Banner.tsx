@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { baseUrl } from '../constants/movie'
 import { FaPlay } from 'react-icons/fa'
 import { InformationCircleIcon } from '@heroicons/react/solid'
+import { useSetRecoilState } from 'recoil'
+import { modalState, movieState } from '../atoms/modelAtom'
 
 interface Props {
     netflixOriginals: Array<Movie>
@@ -11,6 +13,8 @@ interface Props {
 
 const Banner = ({netflixOriginals}: Props) => {
     const [movie, setMovie] = useState<Movie | null>(null)
+    const setShowModal = useSetRecoilState(modalState)
+    const setCurrentMovie = useSetRecoilState(movieState)
 
     useEffect(() => {
         setMovie(netflixOriginals[Math.floor(Math.random() * netflixOriginals.length)])
@@ -30,10 +34,15 @@ const Banner = ({netflixOriginals}: Props) => {
                 {movie?.overview}
             </p>
             <div className="flex space-x-3">
-                <button className="bannerButton bg-white text-black">
+                <button className="bannerButton bg-white text-black active:scale-95 transition">
                     <FaPlay className="h-4 w-4 text-black md:h-7 md:w-7"/> Play
                 </button>
-                <button className="bannerButton bg-[gray]/70">
+                <button
+                    className="bannerButton bg-[gray]/70 active:scale-95 transition"
+                onClick={() => {
+                    setCurrentMovie(movie)
+                    setShowModal(true)
+                }}>
                     <InformationCircleIcon className="h-5 w-5 md:w-8 md:h-8" /> More Info
                 </button>
             </div>

@@ -1,9 +1,11 @@
 import { BellIcon, SearchIcon } from '@heroicons/react/solid'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import useAuth from '../hooks/UseAuth'
 
 const Header = () => {
-    const  [isScrolled, setIsScrolled] = useState(false)
+    const [isScrolled, setIsScrolled] = useState(false)
+    const {user} = useAuth()
 
     useEffect(() => {
         const handleScroll = () => {
@@ -35,16 +37,27 @@ const Header = () => {
                 </ul>
             </div>
             <div className="flex items-center space-x-4 text-sm font-light">
-                <SearchIcon className="hidden h-6 w-6 sm:inline" />
-                <p className="hidden lg:inline">Kids</p>
-                <BellIcon className="h-6 w-6" />
-                <Link href="/account">
-                    <img
-                        src="https://rb.gy/g1pwyx"
-                        alt=""
-                        className="cursor-pointer rounded"
-                    />
-                </Link>
+                {
+                    user ?
+                        <>
+                            <SearchIcon className="hidden h-6 w-6 sm:inline"/>
+                            <p className="hidden lg:inline">Kids</p>
+                            <BellIcon className="h-6 w-6"/>
+                            <Link href="/account">
+                                <img
+                                    src="https://rb.gy/g1pwyx"
+                                    alt=""
+                                    className="cursor-pointer rounded"
+                                />
+                            </Link>
+                        </>
+                        :
+                        <Link href="/login">
+                            <div className="w-20 h-7 rounded bg-red-600 flex items-center justify-center text-white cursor-pointer active:scale-95 transition">
+                                Sign In
+                            </div>
+                        </Link>
+                }
             </div>
         </header>
     )
