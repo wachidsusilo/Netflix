@@ -35,9 +35,7 @@ const Login = () => {
     }
 
     if (user) {
-        router.push("/").then(()=>{
-            // TODO
-        })
+        router.push("/").then()
         return null
     }
 
@@ -99,6 +97,7 @@ const Login = () => {
                     </label>
                 </div>
                 <button
+                    disabled={login && loading}
                     type="submit"
                     className="w-full rounded bg-[#e50914] py-3 font-semibold active:scale-95 transition flex items-center justify-center"
                     onClick={() => setLogin(true)}>
@@ -127,6 +126,7 @@ const Login = () => {
                 <div className="text-[gray] flex gap-2">
                     New to Netflix?{' '}
                     <button
+                        disabled={!login && loading}
                         type="submit"
                         className="text-white hover:underline flex items-center justify-center"
                         onClick={() => setLogin(false)}>

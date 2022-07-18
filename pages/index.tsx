@@ -5,8 +5,9 @@ import { Movie } from '../typings'
 import Banner from '../components/Banner'
 import Row from '../components/Row'
 import { useRecoilValue } from 'recoil'
-import { modalState } from '../atoms/modelAtom'
+import { modalState, movieState } from '../atoms/modelAtom'
 import Modal from '../components/Modal'
+import useMovieList from '../hooks/UseMovieList'
 
 interface Props {
     netflixOriginals: Array<Movie>
@@ -32,9 +33,11 @@ const Home = (
     }: Props
 ) => {
     const showModal = useRecoilValue(modalState)
+    const movie = useRecoilValue(movieState)
+    const {myList} = useMovieList()
 
     return (
-        <div className="relative h-screen bg-gradient-to-b lg:h-[140vh]">
+        <div className={`relative h-screen bg-gradient-to-b lg:h-[140vh] ${showModal && "!h-screen overflow-hidden"}`}>
             <Head>
                 <title>Home - Netflix</title>
                 <link rel="icon" href="/favicon.ico"/>
@@ -45,6 +48,7 @@ const Home = (
                 <section className="md:space-y-24">
                     <Row title="Trending Now" movies={trendingNow} />
                     <Row title="Top Rated" movies={topRated} />
+                    {myList.length > 0 && <Row title="My List" movies={myList} />}
                     <Row title="Action Thrillers" movies={actionMovies} />
                     <Row title="Comedies" movies={comedyMovies} />
                     <Row title="Scary Movies" movies={horrorMovies} />

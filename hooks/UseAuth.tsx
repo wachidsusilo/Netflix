@@ -10,24 +10,25 @@ import {
 import { auth } from '../firebase'
 import { useRouter } from 'next/router'
 import getAuthErrorMessage from '../constants/auth'
+import { onCurrentUserSubscriptionUpdate, Subscription } from '@stripe/firestore-stripe-payments'
+import payments from '../lib/stripe'
 
 interface IAuth {
     user: User | null
-    signUp: (email: string, password: string) => Promise<void>
-    signIn: (email: string, password: string) => Promise<void>
-    logout: () => Promise<void>
+    subscription: Subscription | null,
+    signUp: (email: string, password: string) => void
+    signIn: (email: string, password: string) => void
+    logout: () => void
     error: string | null
     loading: boolean
 }
 
 const AuthContext = createContext<IAuth>({
     user: null,
-    signUp: async () => {
-    },
-    signIn: async () => {
-    },
-    logout: async () => {
-    },
+    subscription: null,
+    signUp: () => {},
+    signIn: () => {},
+    logout: () => {},
     error: null,
     loading: false
 })
@@ -41,11 +42,15 @@ export const AuthProvider = ({children}: AuthProviderProps) => {
     const [initialLoading, setInitialLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [user, setUser] = useState<User | null>(null)
+    const [subscription, setSubscription] = useState<Subscription | null>(null)
     const router = useRouter()
 
     useEffect(() => {
         return onAuthStateChanged(auth, (user) => {
             if (user) {
+                onCurrentUserSubscriptionUpdate(payments, (snapshot) => {
+                    setSubscription(snapshot.subscriptions.filter((subscription) => subscription.status == "active")[0] ?? null)
+                })
                 setUser(user)
                 setLoading(false)
             } else {
@@ -57,13 +62,13 @@ export const AuthProvider = ({children}: AuthProviderProps) => {
 
     }, [auth])
 
-    const signUp = async (email: string, password: string) => {
+    const signUp = (email: string, password: string) => {
         setLoading(true)
         setError(null)
-        await createUserWithEmailAndPassword(auth, email, password)
+        createUserWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 setUser(userCredential.user)
-                router.push("/")
+                router.push("/").then()
             })
             .catch((error: AuthError) => {
                 setError(getAuthErrorMessage(error.code))
@@ -73,13 +78,13 @@ export const AuthProvider = ({children}: AuthProviderProps) => {
             })
     }
 
-    const signIn = async (email: string, password: string) => {
+    const signIn = (email: string, password: string) => {
         setLoading(true)
         setError(null)
-        await signInWithEmailAndPassword(auth, email, password)
+        signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 setUser(userCredential.user)
-                router.push("/")
+                router.push("/").then()
             })
             .catch((error: AuthError) => {
                 setError(getAuthErrorMessage(error.code))
@@ -89,13 +94,13 @@ export const AuthProvider = ({children}: AuthProviderProps) => {
             })
     }
 
-    const logout = async () => {
+    const logout = () => {
         setLoading(true)
         setError(null)
         signOut(auth)
             .then(() => {
                 setUser(null)
-                router.push("/login")
+                router.push("/login").then()
             })
             .catch((error) => {
                 setError(getAuthErrorMessage(error.code))
@@ -107,12 +112,13 @@ export const AuthProvider = ({children}: AuthProviderProps) => {
 
     const memoizedValue = useMemo(() => ({
         user,
+        subscription,
         signUp,
         signIn,
         logout,
         error,
         loading
-    }), [user, loading, error])
+    }), [user, subscription, loading, error])
 
     return (
         <AuthContext.Provider value={memoizedValue}>

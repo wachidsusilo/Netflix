@@ -1,12 +1,16 @@
 import MuiModal from '@mui/material/Modal'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { modalState, movieState } from '../atoms/modelAtom'
-import { PlusIcon, ThumbUpIcon, VolumeOffIcon, VolumeUpIcon, XIcon } from '@heroicons/react/outline'
-import { useEffect, useState } from 'react'
+import { modalState, movieState, mutedState } from '../atoms/modelAtom'
+import { CheckIcon, PlusIcon, ThumbUpIcon, VolumeOffIcon, VolumeUpIcon, XIcon } from '@heroicons/react/outline'
+import { CSSProperties, useEffect, useState } from 'react'
 import { Genre, Movie, MovieType } from '../typings'
 import { DocumentData } from '@firebase/firestore'
 import ReactPlayer from 'react-player/lazy'
 import { FaPlay } from 'react-icons/fa'
+import useAuth from '../hooks/UseAuth'
+import { useRouter } from 'next/router'
+import { toast, Toaster } from 'react-hot-toast'
+import useMovieList from '../hooks/UseMovieList'
 
 const getMovieUrl = (movie: Movie | DocumentData | null) => {
     return `https://api.themoviedb.org/3/${
@@ -18,10 +22,13 @@ const getMovieUrl = (movie: Movie | DocumentData | null) => {
 
 const Modal = () => {
     const [showModal, setShowModal] = useRecoilState(modalState)
+    const [muted, setMuted] = useRecoilState(mutedState)
     const movie = useRecoilValue(movieState)
     const [trailer, setTrailer] = useState('')
     const [genres, setGenres] = useState<Array<Genre>>([])
-    const [muted, setMuted] = useState(true)
+    const {user, subscription} = useAuth()
+    const router = useRouter()
+    const {addMovie, deleteMovie, isMovieExist, isLoadingList} = useMovieList()
 
     useEffect(() => {
         if (!movie) return
@@ -40,6 +47,58 @@ const Modal = () => {
             })
     }, [movie])
 
+    const playMovie = () => {
+        if (!user) {
+            router.push('/login').then()
+            return
+        }
+        if (!subscription) {
+            router.push('/plans').then()
+            return
+        }
+        // TODO play movie
+    }
+
+    const toastStyle: CSSProperties = {
+        background: 'white',
+        color: 'black',
+        fontSize: '16px',
+        padding: '15px',
+        borderRadius: '9999px',
+        maxWidth: '1000px'
+    }
+
+    const showToast = (title: string | null, message: string) => {
+        toast(() => (
+            <span>
+                <b>{title}</b> {message}
+            </span>
+        ), {
+            duration: 6000,
+            style: toastStyle
+        })
+    }
+
+    const handleMovieList = () => {
+        if (isMovieExist(movie)) {
+            deleteMovie(movie)
+                .then(() => {
+                    showToast(movie?.title || movie?.original_name, "has been removed from My List")
+                })
+                .catch((error) => {
+                    showToast("Error", error.message)
+                })
+        } else {
+            addMovie(movie)
+                .then(() => {
+                    showToast(movie?.title || movie?.original_name, "has been added to My List")
+                })
+                .catch((error) => {
+                    showToast("Error", error.message)
+                })
+        }
+    }
+
     const handleClose = () => {
         setShowModal(false)
     }
@@ -50,6 +109,7 @@ const Modal = () => {
             open={showModal}
             onClose={handleClose}>
             <>
+                <Toaster position="bottom-center"/>
                 <button
                     className="modalButton absolute right-5 top-5 !z-40 h-9 w-9 border-none bg-[#181818] hover:bg-[#181818]"
                     onClick={handleClose}>
@@ -67,12 +127,24 @@ const Modal = () => {
                     <div className="absolute bottom-10 flex w-full items-center justify-between px-10">
                         <div className="flex space-x-2">
                             <button
-                                className="flex items-center gap-x-2 rounded bg-white px-8 text-xl font-bold text-black transition hover:bg-[#e6e6e6] active:scale-95">
+                                className="flex items-center gap-x-2 rounded bg-white px-8 text-xl font-bold text-black
+                                transition hover:bg-[#e6e6e6] active:scale-95"
+                                onClick={() => {
+                                    playMovie()
+                                }}>
                                 <FaPlay className="h-7 w-7 text-black"/>
                                 Play
                             </button>
-                            <button className="modalButton active:scale-95">
-                                <PlusIcon className="h-7 w-7"/>
+                            <button
+                                disabled={isLoadingList}
+                                className="modalButton active:scale-95"
+                                onClick={handleMovieList}>
+                                {
+                                    isMovieExist(movie) ?
+                                        <CheckIcon className="h-7 w-7"/>
+                                        :
+                                        <PlusIcon className="h-7 w-7"/>
+                                }
                             </button>
                             <button className="modalButton active:scale-95">
                                 <ThumbUpIcon className="h-7 w-7"/>
@@ -95,7 +167,8 @@ const Modal = () => {
                         <div className="space-y-1.5">
                             <p className="text-2xl">{movie?.title}</p>
                             <div className="flex items-center space-x-2 text-sm">
-                                <p className="font-semibold text-green-400">{(movie?.vote_average ?? 0) * 10}% Match</p>
+                                <p className="font-semibold text-green-400">{((movie?.vote_average ?? 0) * 10).toFixed(0)}%
+                                    Match</p>
                                 <p className="font-light">{movie?.release_date || movie?.first_air_date}</p>
                                 <div
                                     className="flex h-4 items-center justify-center rounded border border-white/40 px-1.5 text-xs">HD

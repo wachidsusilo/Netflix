@@ -2,9 +2,10 @@ import { Movie } from '../typings'
 import Image from 'next/image'
 import { useSetRecoilState } from 'recoil'
 import { modalState, movieState } from '../atoms/modelAtom'
+import { DocumentData } from '@firebase/firestore'
 
 interface Props {
-    movie: Movie
+    movie: Movie | DocumentData
 }
 
 const Thumbnail = ({movie}: Props) => {
@@ -25,6 +26,10 @@ const Thumbnail = ({movie}: Props) => {
                 className="rounded-sm object-cover md:rounded"
                 layout="fill"
             />
+            <div className="absolute w-full h-full bg-gradient-to-t from-[#181818] via-transparent top-0 left-0 opacity-0 hover:opacity-100 transition
+            flex items-end p-2 text-sm text-shadow-md">
+                {movie?.title}
+            </div>
         </div>
     )
 }

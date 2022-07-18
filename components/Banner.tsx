@@ -6,6 +6,8 @@ import { FaPlay } from 'react-icons/fa'
 import { InformationCircleIcon } from '@heroicons/react/solid'
 import { useSetRecoilState } from 'recoil'
 import { modalState, movieState } from '../atoms/modelAtom'
+import useAuth from '../hooks/UseAuth'
+import { useRouter } from 'next/router'
 
 interface Props {
     netflixOriginals: Array<Movie>
@@ -15,17 +17,34 @@ const Banner = ({netflixOriginals}: Props) => {
     const [movie, setMovie] = useState<Movie | null>(null)
     const setShowModal = useSetRecoilState(modalState)
     const setCurrentMovie = useSetRecoilState(movieState)
+    const {user, subscription} = useAuth()
+    const router = useRouter()
 
     useEffect(() => {
         setMovie(netflixOriginals[Math.floor(Math.random() * netflixOriginals.length)])
     }, [netflixOriginals])
 
+    const playMovie = () => {
+        if (!user) {
+            router.push('/login').then(() => {
+                // TODO
+            })
+            return
+        }
+        if (!subscription) {
+            router.push('/plans').then(() => {
+                // TODO
+            })
+            return
+        }
+    }
+
     return (
         <div className="flex flex-col space-y-2 py-16 md:space-y-4 lg:h-[65vh] lg:justify-end lg:pb-12">
             <div className="absolute top-0 left-0 h-[95vh] w-screen -z-10">
                 <Image src={`${baseUrl}${movie?.backdrop_path || movie?.poster_path}`}
-                layout="fill"
-                objectFit="cover" />
+                       layout="fill"
+                       objectFit="cover"/>
             </div>
             <h1 className="text-2xl font-bold md:text-4xl lg:text-7xl">
                 {movie?.title || movie?.name || movie?.original_name}
@@ -34,16 +53,20 @@ const Banner = ({netflixOriginals}: Props) => {
                 {movie?.overview}
             </p>
             <div className="flex space-x-3">
-                <button className="bannerButton bg-white text-black active:scale-95 transition">
+                <button
+                    className="bannerButton bg-white text-black active:scale-95 transition"
+                    onClick={() => {
+                        playMovie()
+                    }}>
                     <FaPlay className="h-4 w-4 text-black md:h-7 md:w-7"/> Play
                 </button>
                 <button
                     className="bannerButton bg-[gray]/70 active:scale-95 transition"
-                onClick={() => {
-                    setCurrentMovie(movie)
-                    setShowModal(true)
-                }}>
-                    <InformationCircleIcon className="h-5 w-5 md:w-8 md:h-8" /> More Info
+                    onClick={() => {
+                        setCurrentMovie(movie)
+                        setShowModal(true)
+                    }}>
+                    <InformationCircleIcon className="h-5 w-5 md:w-8 md:h-8"/> More Info
                 </button>
             </div>
         </div>
