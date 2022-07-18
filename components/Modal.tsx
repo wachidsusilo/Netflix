@@ -105,17 +105,17 @@ const Modal = () => {
 
     return (
         <MuiModal
-            className="fixed !top-7 left-0 right-0 z-50 mx-auto w-full max-w-5xl overflow-hidden overflow-y-scroll rounded-md scrollbar-hide"
+            className="fixed !top-0 md:!top-7 left-0 right-0 z-50 mx-auto w-full max-w-5xl overflow-hidden overflow-y-scroll rounded-md scrollbar-hide"
             open={showModal}
             onClose={handleClose}>
-            <>
+            <div>
                 <Toaster position="bottom-center"/>
                 <button
-                    className="modalButton absolute right-5 top-5 !z-40 h-9 w-9 border-none bg-[#181818] hover:bg-[#181818]"
+                    className="modalButton fixed md:absolute right-3 top-3 md:right-5 md:top-5 !z-40 h-9 w-9 border-none bg-[#181818] hover:bg-[#181818]"
                     onClick={handleClose}>
                     <XIcon className="h-6 w-6"/>
                 </button>
-                <div className="relative pt-[56.25%] bg-black">
+                <div className="fixed md:absolute top-0 left-0 w-full max-w-5xl z-10 pt-[56.25%] bg-black">
                     <ReactPlayer
                         url={`https://www.youtube.com/watch?v=${trailer}`}
                         width="100%"
@@ -124,15 +124,15 @@ const Modal = () => {
                         playing
                         muted={muted}
                     />
-                    <div className="absolute bottom-10 flex w-full items-center justify-between px-10">
+                    <div className="absolute bottom-4 md:bottom-8 flex w-full items-center justify-between px-4 md:px-10">
                         <div className="flex space-x-2">
                             <button
-                                className="flex items-center gap-x-2 rounded bg-white px-8 text-xl font-bold text-black
+                                className="flex items-center gap-x-4 rounded bg-white px-5 text-md md:text-xl font-bold text-black
                                 transition hover:bg-[#e6e6e6] active:scale-95"
                                 onClick={() => {
                                     playMovie()
                                 }}>
-                                <FaPlay className="h-7 w-7 text-black"/>
+                                <FaPlay className="h-5 w-5 md:h-6 md:w-6 text-black"/>
                                 Play
                             </button>
                             <button
@@ -141,13 +141,13 @@ const Modal = () => {
                                 onClick={handleMovieList}>
                                 {
                                     isMovieExist(movie) ?
-                                        <CheckIcon className="h-7 w-7"/>
+                                        <CheckIcon className="h-5 w-5 md:h-6 md:w-6 "/>
                                         :
-                                        <PlusIcon className="h-7 w-7"/>
+                                        <PlusIcon className="h-5 w-5 md:h-6 md:w-6 "/>
                                 }
                             </button>
                             <button className="modalButton active:scale-95">
-                                <ThumbUpIcon className="h-7 w-7"/>
+                                <ThumbUpIcon className="h-5 w-5 md:h-6 md:w-6 "/>
                             </button>
                         </div>
                         <button
@@ -162,8 +162,8 @@ const Modal = () => {
                         </button>
                     </div>
                 </div>
-                <div className="flex space-x-16 rounded-b-md bg-[#181818] px-10 py-8">
-                    <div className="space-y-6 text-lg">
+                <div className="absolute top-0 left-0 flex pt-[56.25%] min-h-full md:min-h-fit h-auto space-x-16 rounded-b-md bg-[#181818] px-4 md:px-10">
+                    <div className="space-y-6 text-lg py-4 md:py-8">
                         <div className="space-y-1.5">
                             <p className="text-2xl">{movie?.title}</p>
                             <div className="flex items-center space-x-2 text-sm">
@@ -194,7 +194,7 @@ const Modal = () => {
                         </div>
                     </div>
                 </div>
-            </>
+            </div>
         </MuiModal>
     )
 }
