@@ -54,13 +54,11 @@ const Plans = ({products}: Props) => {
                     <img
                         src="https://rb.gy/ulxxee"
                         alt=""
-                        className="cursor-pointer object-contain active:scale-95 transition"
-                        width={150}
-                        height={90}
+                        className="cursor-pointer w-auto h-7 md:h-10 object-contain active:scale-95 transition"
                     />
                 </Link>
                 <button
-                    className="text-xl font-medium hover:underline"
+                    className="text-md md:text-lg font-medium hover:underline"
                     onClick={() => {
                         if (!loading) {
                             logout()
@@ -84,8 +82,8 @@ const Plans = ({products}: Props) => {
                     }
                 </button>
             </header>
-            <main className="pt-28 mx-auto max-w-5xl px-5 pb-12 transition-all md:px-10">
-                <h1 className="mb-3 text-3xl font-medium">Choose the plans that's right for you</h1>
+            <main className="pt-24 md:pt-28 mx-auto max-w-5xl px-5 pb-12 transition-all md:px-10">
+                <h1 className="mb-3 text-2xl md:text-3xl font-medium">Choose the plans that's right for you</h1>
                 <ul>
                     <li className="flex items-center gap-x-2 text-lg">
                         <CheckIcon className="h-7 w-7 text-[#E50914]"/> Watch all you want.
@@ -100,7 +98,7 @@ const Plans = ({products}: Props) => {
                         your plan anytime.
                     </li>
                 </ul>
-                <div className="mt-4 flex flex-col space-y-4">
+                <div className="mt-8 flex flex-col space-y-4">
                     <div className="flex w-full items-center justify-end self-end md:w-3/5">
                         {
                             products.map((product) => (

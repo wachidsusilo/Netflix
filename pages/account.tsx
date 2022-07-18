@@ -5,13 +5,25 @@ import Membership from '../components/Membership'
 import { GetStaticProps } from 'next'
 import { getProducts, Product } from '@stripe/firestore-stripe-payments'
 import payments from '../lib/stripe'
+import { useRouter } from 'next/router'
 
 interface Props {
     products: Array<Product>
 }
 
 const Account = ({products} : Props) => {
-    const {subscription, logout, loading} = useAuth()
+    const {user, subscription, logout, loading} = useAuth()
+    const router = useRouter()
+
+    if (!user) {
+        router.push("/login").then()
+        return null
+    }
+
+    if (!subscription) {
+        router.push("/plans").then()
+        return null
+    }
 
     return (
         <div>
