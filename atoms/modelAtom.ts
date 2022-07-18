@@ -14,5 +14,5 @@ export const movieState = atom<Movie | DocumentData | null>({
 
 export const mutedState = atom({
     key: 'mutedState',
-    default: false
+    default: true
 })
