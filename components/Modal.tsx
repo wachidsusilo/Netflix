@@ -31,20 +31,34 @@ const Modal = () => {
     const {addMovie, deleteMovie, isMovieExist, isLoadingList} = useMovieList()
 
     useEffect(() => {
-        if (!movie) return
-
-        fetch(getMovieUrl(movie))
-            .then((response) => {
-                response.json().then((data) => {
-                    if (data?.videos) {
-                        const key = data.videos.results.find((e: MovieType) => e.type === 'Trailer')?.key
-                        setTrailer(key ?? '')
-                    }
-                    if (data?.genres) {
-                        setGenres(data.genres)
-                    }
+        if (movie) {
+            fetch(getMovieUrl(movie))
+                .then((response) => {
+                    response.json().then((data) => {
+                        if (data?.videos) {
+                            const key = data.videos.results.find((e: MovieType) => e.type === 'Trailer')?.key
+                            setTrailer(key ?? '')
+                        }
+                        if (data?.genres) {
+                            setGenres(data.genres)
+                        }
+                    })
                 })
-            })
+        }
+
+        const onBackPressed = (e: Event) => {
+            if (showModal) {
+                setShowModal(false)
+                e.stopPropagation()
+                e.preventDefault()
+            }
+        }
+
+        window.addEventListener('backbutton', onBackPressed)
+
+        return () => {
+            window.removeEventListener('backbutton', onBackPressed)
+        }
     }, [movie])
 
     const playMovie = () => {
@@ -83,18 +97,18 @@ const Modal = () => {
         if (isMovieExist(movie)) {
             deleteMovie(movie)
                 .then(() => {
-                    showToast(movie?.title || movie?.original_name, "has been removed from My List")
+                    showToast(movie?.title || movie?.original_name, 'has been removed from My List')
                 })
                 .catch((error) => {
-                    showToast("Error", error.message)
+                    showToast('Error', error.message)
                 })
         } else {
             addMovie(movie)
                 .then(() => {
-                    showToast(movie?.title || movie?.original_name, "has been added to My List")
+                    showToast(movie?.title || movie?.original_name, 'has been added to My List')
                 })
                 .catch((error) => {
-                    showToast("Error", error.message)
+                    showToast('Error', error.message)
                 })
         }
     }
@@ -124,7 +138,8 @@ const Modal = () => {
                         playing={true}
                         muted={muted}
                     />
-                    <div className="absolute bottom-4 md:bottom-8 flex w-full items-center justify-between px-4 md:px-10">
+                    <div
+                        className="absolute bottom-4 md:bottom-8 flex w-full items-center justify-between px-4 md:px-10">
                         <div className="flex space-x-2">
                             <button
                                 className="flex items-center gap-x-4 rounded bg-white px-5 text-md md:text-xl font-bold text-black
@@ -162,7 +177,8 @@ const Modal = () => {
                         </button>
                     </div>
                 </div>
-                <div className="absolute top-0 left-0 flex pt-[56.25%] min-h-full md:min-h-fit h-auto space-x-16 rounded-b-md bg-[#181818] px-4 md:px-10">
+                <div
+                    className="absolute top-0 left-0 flex pt-[56.25%] min-h-full md:min-h-fit h-auto space-x-16 rounded-b-md bg-[#181818] px-4 md:px-10">
                     <div className="space-y-6 text-lg py-4 md:py-8">
                         <div className="space-y-1.5">
                             <p className="text-2xl">{movie?.title}</p>
